@@ -180,7 +180,7 @@ class ProteinViewController : UIViewController {
         
         scene.rootNode.addChildNode(nodev2)
         let zalign = SCNNode()
-        zalign.eulerAngles.x = Float(M_PI_2)
+        zalign.eulerAngles.x = Float(Double.pi / 2)
         let cyl = SCNCylinder(radius: 0.1, height: CGFloat(height))
         cyl.firstMaterial?.diffuse.contents = UIColor.gray
         
