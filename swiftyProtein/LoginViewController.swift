@@ -13,6 +13,17 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var connectButton: UIButton!
     
+    func alert(title: String, message: String, buttonTitle: String) {
+        DispatchQueue.main.async {
+            let alertController = UIAlertController(title: title  + " 😡", message: message, preferredStyle: .alert)
+            let OKAction = UIAlertAction(title: buttonTitle, style: .default)
+            {
+                action in alertController.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(OKAction)
+            self.present(alertController, animated: true, completion: nil)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,6 +33,7 @@ class LoginViewController: UIViewController {
         var error:NSError?
         guard authenticationContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
             connectButton.isHidden = true
+            self.alert(title: "No biometric sensor has been detected !", message: (error?.localizedDescription)!, buttonTitle: "Retry")
             //showAlertViewIfNoBiometricSensorHasBeenDetected()
             return
         }
@@ -39,7 +51,7 @@ class LoginViewController: UIViewController {
         
         guard authenticationContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) else {
             connectButton.isHidden = true
-            //showAlertViewIfNoBiometricSensorHasBeenDetected()
+            self.alert(title: "No biometric sensor has been detected !", message: (error?.localizedDescription)!, buttonTitle: "Retry")
             return
         }
         
@@ -53,6 +65,7 @@ class LoginViewController: UIViewController {
                 }else {
                     if let error = error {
                         print(error)
+                        self.alert(title: "No biometric sensor has been detected !", message: error as! String, buttonTitle: "Retry")
                         //self.showAlertViewAfterEvaluatingPolicyWithMessage(message)
                     }
                 }
@@ -60,7 +73,7 @@ class LoginViewController: UIViewController {
         })
     }
 
-    func showAlertViewIfNoBiometricSensorHasBeenDetected(){
+    /*func showAlertViewIfNoBiometricSensorHasBeenDetected(){
         
         showAlertWithTitle(title: "Error", message: "This device does not have a TouchID sensor.")
         
@@ -79,7 +92,7 @@ class LoginViewController: UIViewController {
             
         }
 
-    }
+    }*/
 
     func navigateToAuthenticatedViewController(){
         let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
