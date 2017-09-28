@@ -1,4 +1,4 @@
-//
+ //
 //  ProteinViewController.swift
 //  swiftyProtein
 //
@@ -15,6 +15,7 @@ class ProteinViewController : UIViewController {
     @IBOutlet weak var sceneView: SCNView!
     var scene : SCNScene!
     var cameraNode : SCNNode!
+    var ligandNode: SCNNode!
     var linesFile: [String] = []
     var atoms: [Atom] = []
     var ligand = ""
@@ -24,6 +25,10 @@ class ProteinViewController : UIViewController {
         super.viewDidLoad()
         load()
         self.gestureReconizer = UITapGestureRecognizer(target: self, action: #selector(testGesture))
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        navigationController?.popViewController(animated: true)
     }
     
     func testGesture(recognizer: UITapGestureRecognizer) {
@@ -61,19 +66,22 @@ class ProteinViewController : UIViewController {
                             self.linesFile = string.components(separatedBy: "\n")
                             self.scene = SCNScene()
                             
+                            self.parse()
+                            self.ligandNode = SCNNode()
+                            self.drawAtoms()
+                            self.scene.rootNode.addChildNode(self.ligandNode)
+                            
                             self.cameraNode = SCNNode()
                             self.cameraNode.camera = SCNCamera()
+                            self.cameraNode.position = SCNVector3Make(0, 0, 10)
                             self.scene.rootNode.addChildNode(self.cameraNode)
-                            self.cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
+                            
                             
                             self.sceneView.scene = self.scene
                             self.sceneView.allowsCameraControl = true
                             self.sceneView.autoenablesDefaultLighting = true
-                            
                             self.sceneView.addGestureRecognizer(self.gestureReconizer)
-                            
-                            self.parse()
-                            self.drawAtoms()
+
                         }
                     } else {
                         
@@ -100,6 +108,7 @@ class ProteinViewController : UIViewController {
     }
     
     func parse() {
+        print(linesFile)
         let regex = try! NSRegularExpression(pattern: "\\s+", options: NSRegularExpression.Options.caseInsensitive)
         for line in linesFile {
             let range = NSMakeRange(0, line.characters.count)
@@ -154,8 +163,8 @@ class ProteinViewController : UIViewController {
             let sphere = SCNSphere(radius: 0.3)
             sphere.firstMaterial?.diffuse.contents = atom.color
             let sphereNode = SCNNode(geometry: sphere)
-            sphereNode.position = SCNVector3(atom.x, atom.y, atom.z)
-            scene.rootNode.addChildNode(sphereNode)
+            sphereNode.position = SCNVector3Make(atom.x, atom.y, atom.z)
+            ligandNode.addChildNode(sphereNode)
             atom.node = sphereNode
         }
         for atom in self.atoms {
@@ -166,7 +175,7 @@ class ProteinViewController : UIViewController {
     func drawConnects(atom: Atom) {
         for connect in atom.connect {
             if (connect <= self.atoms.count) {
-                scene.rootNode.addChildNode(lineNode(a1: atom, a2: self.atoms[connect - 1]))
+                ligandNode.addChildNode(lineNode(a1: atom, a2: self.atoms[connect - 1]))
             }
         }
     }
@@ -178,7 +187,7 @@ class ProteinViewController : UIViewController {
         ret.position = a1.node.position
         let nodev2 = a2.node
         
-        scene.rootNode.addChildNode(nodev2)
+        ligandNode.addChildNode(nodev2)
         let zalign = SCNNode()
         zalign.eulerAngles.x = Float(Double.pi / 2)
         let cyl = SCNCylinder(radius: 0.1, height: CGFloat(height))
@@ -204,6 +213,8 @@ class ProteinViewController : UIViewController {
             return dist
         }
     }
+    
+    
     
     // add alert error
 }
