@@ -12,29 +12,40 @@ import UIKit
 
 class Atom {
     
+    var id: String
     var x: Float
     var y: Float
     var z: Float
+    var xide: Float
+    var yide: Float
+    var zide: Float
     var type: String
     var color: UIColor = UIColor.white
+    var connects: [Connect] = []
     var connect: [Int] = []
+    var isAromatiqFlag: Bool
     var node: SCNNode = SCNNode()
     
-    init(px: Float, py: Float, pz: Float, ptype: String) {
+    init(pid: String, ptype: String, px: Float, py: Float, pz: Float, pxide: Float, pyide: Float, pzide: Float, pisAromatiqFlag: String) {
+        self.id = pid
         self.x = px
         self.y = py
         self.z = pz
+        self.xide = pxide
+        self.yide = pyide
+        self.zide = pzide
         self.type = ptype
+        self.isAromatiqFlag = (pisAromatiqFlag == "Y")
         self.color = getColorCPK(type: ptype)
     }
-    
-    // Add Color bonus
+
+    // Color CPK
     func getColorCPK(type: String) -> UIColor {
         switch (type) {
         case "H":
             return UIColor.white
         case "C":
-            return UIColor(displayP3Red: 0, green: 0, blue: 0, alpha: 1)
+            return UIColor.gray
         case "N":
             return UIColor(displayP3Red: 0, green: 0, blue: 139, alpha: 1)
         case "O":

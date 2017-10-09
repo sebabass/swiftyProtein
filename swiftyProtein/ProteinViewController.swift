@@ -9,10 +9,18 @@
 import UIKit
 import SceneKit
 
-class ProteinViewController : UIViewController {
+ class ProteinViewController : UIViewController {
     
+    
+    @IBOutlet weak var menuButton: UIButton!
+    @IBOutlet weak var infosButton: UIButton!
+    @IBOutlet weak var shareButton: UIButton!
     @IBOutlet weak var proteinType: UILabel!
     @IBOutlet weak var sceneView: SCNView!
+    @IBOutlet weak var isHydrogenButton: CheckBox!
+    @IBOutlet weak var isAutoRotate: CheckBox!
+    @IBOutlet weak var isLabel: CheckBox!
+    
     var scene : SCNScene!
     var cameraNode : SCNNode!
     var ligandNode: SCNNode!
@@ -20,10 +28,14 @@ class ProteinViewController : UIViewController {
     var atoms: [Atom] = []
     var ligand = ""
     var gestureReconizer: UITapGestureRecognizer!
+    var ligandTest: Ligand!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        load()
+        self.initMenu()
+        self.ligandTest = Ligand(pid: ligand)
+        self.ligandTest.load(pview: self)
+        self.scene = SCNScene()
         self.gestureReconizer = UITapGestureRecognizer(target: self, action: #selector(testGesture))
     }
     
@@ -44,145 +56,120 @@ class ProteinViewController : UIViewController {
     }
     
     func getProtein(node: SCNNode) {
-        for atom in atoms {
+        for atom in self.ligandTest.atoms {
             if (atom.node == node) {
-                proteinType.text = atom.type
+                proteinType.text = atom.type + "(" + atom.id + ")"
             }
         }
+    }
+    
+    func initMenu() {
+        // Menu Button
+        menuButton.backgroundColor = .clear
+        menuButton.layer.cornerRadius = 5
+        menuButton.layer.borderWidth = 1
+        menuButton.layer.borderColor = UIColor.black.cgColor
+        
+        // Infos Button
+        infosButton.backgroundColor = .clear
+        infosButton.layer.cornerRadius = 5
+        infosButton.layer.borderWidth = 1
+        infosButton.layer.borderColor = UIColor.black.cgColor
+        infosButton.isHidden = true
+        
+        // Share Button
+        shareButton.backgroundColor = .clear
+        shareButton.layer.cornerRadius = 5
+        shareButton.layer.borderWidth = 1
+        shareButton.layer.borderColor = UIColor.black.cgColor
+        shareButton.isHidden = true
+        
+    }
+    
+    @IBAction func OpenOrCloseMenu(_ sender: UIButton) {
+        if (infosButton.isHidden) {
+            infosButton.isHidden = false
+            shareButton.isHidden = false
+        } else {
+            infosButton.isHidden = true
+            shareButton.isHidden = true
+        }
+    }
+    
+    @IBAction func OnShare(_ sender: UIButton) {
+        let textToShare = ["yolo :)"]
+        let activityVC = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
+        activityVC.popoverPresentationController?.sourceView = self.view
+        self.present(activityVC, animated: true, completion: nil)
     }
     
     func load() {
-        UIApplication.shared.isNetworkActivityIndicatorVisible = true
-        print("\(ligand) => ligand")
-        let url = NSURL(string: "https://files.rcsb.org/ligands/view/\(ligand)_model.pdb")
-        let task = URLSession.shared.dataTask(with: url! as URL) {
-            (data, response, error) in
-            if error == nil {
-                if let response = response as? HTTPURLResponse {
-                    if response.statusCode >= 200 && response.statusCode <= 299 {
-                        DispatchQueue.main.async {
-                            let urlContent = NSString(data: data!, encoding: String.Encoding.ascii.rawValue) as NSString!
-                            let string = urlContent! as String
-                            self.linesFile = string.components(separatedBy: "\n")
-                            self.scene = SCNScene()
-                            
-                            self.parse()
-                            self.ligandNode = SCNNode()
-                            self.drawAtoms()
-                            self.scene.rootNode.addChildNode(self.ligandNode)
-                            
-                            self.cameraNode = SCNNode()
-                            self.cameraNode.camera = SCNCamera()
-                            self.cameraNode.position = SCNVector3Make(0, 0, 10)
-                            self.scene.rootNode.addChildNode(self.cameraNode)
-                            
-                            
-                            self.sceneView.scene = self.scene
-                            self.sceneView.allowsCameraControl = true
-                            self.sceneView.autoenablesDefaultLighting = true
-                            self.sceneView.addGestureRecognizer(self.gestureReconizer)
-
-                        }
-                    } else {
-                        
-                        DispatchQueue.main.async {
-                            let alertController = UIAlertController(title: "Error", message: "Can't load Ligand", preferredStyle: .alert)
-                            let defaultAction = UIAlertAction(title: "GOTCHA", style: .default, handler: nil)
-                            alertController.addAction(defaultAction)
-                            self.present(alertController, animated: true, completion: nil)
-                        }
-                    }
-                } else {
-                    
-                    DispatchQueue.main.async {
-                        let alertController = UIAlertController(title: "Error", message: "Can't load Ligand", preferredStyle: .alert)
-                        let defaultAction = UIAlertAction(title: "GOTCHA", style: .default, handler: nil)
-                        alertController.addAction(defaultAction)
-                        self.present(alertController, animated: true, completion: nil)
-                    }
-                }
-            }
-        }
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
-        task.resume()
-    }
-    
-    func parse() {
-        print(linesFile)
-        let regex = try! NSRegularExpression(pattern: "\\s+", options: NSRegularExpression.Options.caseInsensitive)
-        for line in linesFile {
-            let range = NSMakeRange(0, line.characters.count)
-            let nstr = regex.stringByReplacingMatches(in: line, options: [], range: range, withTemplate: "|")
-            let split = nstr.components(separatedBy: "|")
-            if (split.count > 0) {
-                switch (split[0]) {
-                    case "ATOM":
-                        createAtom(split: split)
-                    break
-                    case "CONECT":
-                        addConnect(split: split)
-                    break
-                    case "END":
-                        return
-                    default:
-                        // error
-                        return
-                }
-            }
-        }
-    }
-    
-    func createAtom(split: [String]) {
-        if (split.count < 12) {
-            //error
-            return
-        }
-        let atom = Atom(px: Float(split[6])!, py: Float(split[7])!, pz: Float(split[8])!, ptype: split[11])
-        self.atoms.append(atom)
-    }
-    
-    func addConnect(split: [String]) {
-        if (split.count < 3) {
-            // error
-            return
-        }
-        let atomId = Int(split[1])
-        if (self.atoms.count < atomId!) {
-            // error
-            return
-        }
-        for i in 2...(split.count - 1) {
-            if (Int(split[i]) != atomId) {
-                self.atoms[atomId! - 1].connect.append(Int(split[i])!)
-            }
+        DispatchQueue.main.async {
+            // create and add a camera to the scene
+            self.cameraNode = SCNNode()
+            self.cameraNode.camera = SCNCamera()
+            self.scene.rootNode.addChildNode(self.cameraNode)
+            
+            // place the camera
+            self.cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
+            
+            self.sceneView.scene = self.scene
+            self.sceneView.allowsCameraControl = true
+            self.sceneView.autoenablesDefaultLighting = true
+            
+            self.ligandNode = SCNNode()
+            self.drawAtoms()
+            self.scene.rootNode.addChildNode(self.ligandNode)
+            self.centerPivot(for: self.ligandNode)
+            self.sceneView.addGestureRecognizer(self.gestureReconizer)
         }
     }
     
     func drawAtoms() {
-        for atom in self.atoms {
-            let sphere = SCNSphere(radius: 0.3)
-            sphere.firstMaterial?.diffuse.contents = atom.color
-            let sphereNode = SCNNode(geometry: sphere)
-            sphereNode.position = SCNVector3Make(atom.x, atom.y, atom.z)
-            ligandNode.addChildNode(sphereNode)
-            atom.node = sphereNode
+        print(self.ligandTest.atoms.count)
+        for atom in self.ligandTest.atoms {
+            if (atom.type != "H" || atom.type == "H" && isHydrogenButton.isChecked) {
+                
+                let sphere = SCNSphere(radius: 0.3)
+                sphere.firstMaterial?.diffuse.contents = atom.color
+                let sphereNode = SCNNode(geometry: sphere)
+                sphereNode.position = SCNVector3Make(atom.x, atom.y, atom.z)
+                ligandNode.addChildNode(sphereNode)
+                
+                if (isLabel.isChecked) {
+                    let text = SCNText(string: atom.id, extrusionDepth: 2.0)
+                    text.firstMaterial?.diffuse.contents = UIColor.black
+                    let textNode = SCNNode(geometry: text)
+                    textNode.position = sphereNode.position
+                    textNode.position.x -= 0.2
+                    textNode.position.y += 0.2
+                    textNode.scale = SCNVector3Make(0.04, 0.04, 0.04);
+                    ligandNode.addChildNode(textNode)
+                }
+                atom.node = sphereNode
+            }
         }
-        for atom in self.atoms {
-            drawConnects(atom: atom)
-        }
-    }
-    
-    func drawConnects(atom: Atom) {
-        for connect in atom.connect {
-            if (connect <= self.atoms.count) {
-                ligandNode.addChildNode(lineNode(a1: atom, a2: self.atoms[connect - 1]))
+        for atom in self.ligandTest.atoms {
+            if (atom.type != "H" || atom.type == "H" && isHydrogenButton.isChecked) {
+                drawConnects(atom: atom)
             }
         }
     }
     
-    func lineNode(a1:Atom, a2: Atom) -> SCNNode {
+    func drawConnects(atom: Atom) {
+        for connect in atom.connects {
+            if (connect.atomTarget.type != "H" || connect.atomTarget.type == "H" && isHydrogenButton.isChecked) {
+                ligandNode.addChildNode(lineNode(connect: connect))
+            }
+        }
+    }
+    
+    func lineNode(connect: Connect) -> SCNNode {
+        let a1: Atom = connect.currentAtom
+        let a2: Atom = connect.atomTarget
+
         let ret = SCNNode()
-        let height = getDist(a1: a1, a2: a2)
+        let height = connect.height
         
         ret.position = a1.node.position
         let nodev2 = a2.node
@@ -190,31 +177,73 @@ class ProteinViewController : UIViewController {
         ligandNode.addChildNode(nodev2)
         let zalign = SCNNode()
         zalign.eulerAngles.x = Float(Double.pi / 2)
-        let cyl = SCNCylinder(radius: 0.1, height: CGFloat(height))
-        cyl.firstMaterial?.diffuse.contents = UIColor.gray
+        let cyl = (connect.isDouble) ? SCNCylinder(radius: 0.05, height: CGFloat(height)) : SCNCylinder(radius: 0.1, height: CGFloat(height))
+        cyl.firstMaterial?.diffuse.contents = a1.color
+        let cyl2 = (connect.isDouble) ? SCNCylinder(radius: 0.05, height: CGFloat(height)) : SCNCylinder(radius: 0.1, height: CGFloat(height))
+        cyl2.firstMaterial?.diffuse.contents = a2.color
+        let cyl3 = SCNCylinder(radius: 0.05, height: CGFloat(height))
+        cyl3.firstMaterial?.diffuse.contents = a1.color
+        let cyl4 = SCNCylinder(radius: 0.05, height: CGFloat(height))
+        cyl4.firstMaterial?.diffuse.contents = a2.color
         
         let cylNode = SCNNode(geometry: cyl)
         cylNode.position.y = -height / 2
+        let cylNode2 = SCNNode(geometry: cyl2)
+        cylNode2.position.y = (-height + (-height / 2))
         zalign.addChildNode(cylNode)
+        zalign.addChildNode(cylNode2)
+        
+        if (connect.isDouble) {
+            let cylNode3 = SCNNode(geometry: cyl3)
+            cylNode3.position.y = -height / 2
+            let cylNode4 = SCNNode(geometry: cyl4)
+            cylNode4.position.y = (-height + (-height / 2))
+            cylNode.position.x = -0.1
+            cylNode2.position.x = -0.1
+            cylNode3.position.x = 0.1
+            cylNode4.position.x = 0.1
+            zalign.addChildNode(cylNode3)
+            zalign.addChildNode(cylNode4)
+        }
         
         ret.addChildNode(zalign)
         ret.constraints = [SCNLookAtConstraint(target: nodev2)]
         return ret
     }
     
-    func getDist(a1:Atom, a2: Atom) -> Float {
-        let xd = a2.x - a1.x
-        let yd = a2.y - a1.y
-        let zd = a2.z - a1.z
-        let dist = Float(sqrt(xd * xd + yd * yd + zd * zd))
-        if (dist < 0) {
-            return (dist * -1)
+    @IBAction func isHydrogen(_ sender: CheckBox) {
+        self.scene.rootNode.enumerateChildNodes { (node, stop )  -> Void in
+            node.removeFromParentNode()
+        }
+        self.load()
+    }
+    
+    @IBAction func isRotate(_ sender: CheckBox) {
+        if (isAutoRotate.isChecked) {
+            self.ligandNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 1, z: 0, duration: 1)))
         } else {
-            return dist
+            self.ligandNode.removeAllActions()
         }
     }
     
+    @IBAction func isLabel(_ sender: CheckBox) {
+        self.scene.rootNode.enumerateChildNodes { (node, stop )  -> Void in
+            node.removeFromParentNode()
+        }
+        self.load()
+    }
     
+    override var shouldAutorotate: Bool {
+        return true
+    }
     
-    // add alert error
+    func centerPivot(for node: SCNNode) {
+        let min = node.boundingBox.min
+        let max = node.boundingBox.max
+        node.pivot = SCNMatrix4MakeTranslation(
+            min.x + (max.x - min.x)/2,
+            min.y + (max.y - min.y)/2,
+            min.z + (max.z - min.z)/2
+        )
+    }
 }
