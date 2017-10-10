@@ -107,6 +107,23 @@ import SceneKit
         self.present(activityViewController, animated: true, completion: nil)
     }
     
+    @IBAction func OpenInfosPopup(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "popup") as! PopupViewController
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        vc.contents.append(ligandTest.name)
+        vc.contents.append(ligandTest.type)
+        vc.contents.append(ligandTest.formula)
+        vc.contents.append(ligandTest.formulaWeight)
+        vc.contents.append(String(ligandTest.nbrAtoms))
+        vc.contents.append(String(ligandTest.nbrConnects))
+        vc.id = ligand
+        
+        self.present(vc, animated: true, completion: nil)
+    }
+    
+    
     func load() {
         DispatchQueue.main.async {
             // create and add a camera to the scene
@@ -131,6 +148,7 @@ import SceneKit
     }
     
     func drawAtoms() {
+        ligandTest.nbrConnects = 0
         for atom in self.ligandTest.atoms {
             if (atom.type != "H" || atom.type == "H" && isHydrogenButton.isChecked) {
                 
@@ -162,6 +180,7 @@ import SceneKit
     
     func drawConnects(atom: Atom) {
         for connect in atom.connects {
+            ligandTest.nbrConnects += 1
             if (connect.atomTarget.type != "H" || connect.atomTarget.type == "H" && isHydrogenButton.isChecked) {
                 ligandNode.addChildNode(lineNode(connect: connect))
             }

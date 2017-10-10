@@ -22,6 +22,7 @@
 		4A4FB79E1F86CC0300E12297 /* CheckBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4FB79D1F86CC0200E12297 /* CheckBox.swift */; };
 		4A7102C31F82DFBF00B3EE3E /* Ligand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A7102C21F82DFBF00B3EE3E /* Ligand.swift */; };
 		4ADA96581F7EF8CE00164ECE /* LocalAuthentication.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A33E6341E4E3A7B00319A0F /* LocalAuthentication.framework */; };
+		E61DFA531F8D63610031B7F4 /* PopupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E61DFA521F8D63610031B7F4 /* PopupViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		4A4FB79B1F83EB5E00E12297 /* Connect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Connect.swift; sourceTree = "<group>"; };
 		4A4FB79D1F86CC0200E12297 /* CheckBox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckBox.swift; sourceTree = "<group>"; };
 		4A7102C21F82DFBF00B3EE3E /* Ligand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ligand.swift; sourceTree = "<group>"; };
+		E61DFA521F8D63610031B7F4 /* PopupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopupViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				4A33E6231E4E38F400319A0F /* LoginViewController.swift */,
 				4A33E6391E4E650300319A0F /* ProteinListViewController.swift */,
 				4A33E6421E51B96200319A0F /* ProteinViewController.swift */,
+				E61DFA521F8D63610031B7F4 /* PopupViewController.swift */,
 			);
 			name = ViewController;
 			sourceTree = "<group>";
@@ -212,6 +215,7 @@
 				4A4FB79E1F86CC0300E12297 /* CheckBox.swift in Sources */,
 				4A4FB79C1F83EB5E00E12297 /* Connect.swift in Sources */,
 				4A33E63F1E4E82EB00319A0F /* LigandTableViewCell.swift in Sources */,
+				E61DFA531F8D63610031B7F4 /* PopupViewController.swift in Sources */,
 				4A33E6221E4E38F400319A0F /* AppDelegate.swift in Sources */,
 				4A33E6481E52582500319A0F /* Atom.swift in Sources */,
 				4A7102C31F82DFBF00B3EE3E /* Ligand.swift in Sources */,
