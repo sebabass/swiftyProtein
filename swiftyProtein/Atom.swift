@@ -41,7 +41,7 @@ class Atom {
 
     // Color CPK
     func getColorCPK(type: String) -> UIColor {
-        switch (type) {
+        switch (type.uppercased()) {
         case "H":
             return UIColor.white
         case "C":
@@ -50,13 +50,13 @@ class Atom {
             return UIColor(displayP3Red: 0, green: 0, blue: 139, alpha: 1)
         case "O":
             return UIColor.red
-        case "F", "Cl":
+        case "F", "CL":
             return UIColor.green
-        case "Br":
+        case "BR":
             return UIColor(displayP3Red: 139, green: 0, blue: 0, alpha: 1)
         case "I":
             return UIColor(displayP3Red: 148, green: 0, blue: 211, alpha: 1)
-        case "He", "Ne", "Ar", "Xe", "Kr":
+        case "HE", "NE", "AR", "XE", "KR":
             return UIColor.cyan
         case "P":
             return UIColor.orange
@@ -64,13 +64,13 @@ class Atom {
             return UIColor.yellow
         case "B":
             return UIColor(displayP3Red: 250, green: 128, blue: 114, alpha: 1)
-        case "Li", "Na", "K", "Rb", "Cs", "Fr":
+        case "LI", "NA", "K", "RB", "CA", "FR":
             return UIColor.purple
-        case "Be", "Mg", "Ca", "Sr", "Ba", "Ra":
+        case "BE", "MG", "CA", "SR", "BA", "RA":
             return UIColor(displayP3Red: 0, green: 100, blue: 0, alpha: 1)
-        case "Ti":
+        case "TI":
             return UIColor.gray
-        case "Fe":
+        case "FE":
             return UIColor(displayP3Red: 255, green: 140, blue: 0, alpha: 1)
         default:
             return UIColor(displayP3Red: 255, green: 192, blue: 203, alpha: 1)

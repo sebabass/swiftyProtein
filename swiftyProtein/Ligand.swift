@@ -65,16 +65,7 @@ class Ligand {
         UIApplication.shared.isNetworkActivityIndicatorVisible = false
         task.resume()
     }
-    
-    func debugTest() {
-        print(self.id)
-        print(self.name)
-        print(self.type)
-        print(self.pdbxType)
-        print(self.formula)
-        print(self.formulaWeight)
-    }
-    
+
     private func parse(presultFile: [String]) {
         var step: Int = 0
         for var i in 0 ..< presultFile.count {

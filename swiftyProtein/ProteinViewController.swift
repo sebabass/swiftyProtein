@@ -20,6 +20,7 @@ import SceneKit
     @IBOutlet weak var isHydrogenButton: CheckBox!
     @IBOutlet weak var isAutoRotate: CheckBox!
     @IBOutlet weak var isLabel: CheckBox!
+    @IBOutlet weak var LigandId: UINavigationItem!
     
     var scene : SCNScene!
     var cameraNode : SCNNode!
@@ -97,10 +98,13 @@ import SceneKit
     }
     
     @IBAction func OnShare(_ sender: UIButton) {
-        let textToShare = ["yolo :)"]
-        let activityVC = UIActivityViewController(activityItems: textToShare, applicationActivities: nil)
-        activityVC.popoverPresentationController?.sourceView = self.view
-        self.present(activityVC, animated: true, completion: nil)
+        let bounds = UIScreen.main.bounds
+        UIGraphicsBeginImageContextWithOptions(bounds.size, true, 0.0)
+        self.view.drawHierarchy(in: bounds, afterScreenUpdates: false)
+        let img: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        let activityViewController = UIActivityViewController(activityItems: [img], applicationActivities: nil)
+        self.present(activityViewController, animated: true, completion: nil)
     }
     
     func load() {
@@ -122,11 +126,11 @@ import SceneKit
             self.scene.rootNode.addChildNode(self.ligandNode)
             self.centerPivot(for: self.ligandNode)
             self.sceneView.addGestureRecognizer(self.gestureReconizer)
+            self.LigandId.title = self.ligandTest.id
         }
     }
     
     func drawAtoms() {
-        print(self.ligandTest.atoms.count)
         for atom in self.ligandTest.atoms {
             if (atom.type != "H" || atom.type == "H" && isHydrogenButton.isChecked) {
                 
@@ -212,6 +216,7 @@ import SceneKit
     }
     
     @IBAction func isHydrogen(_ sender: CheckBox) {
+        isAutoRotate.isChecked = false
         self.scene.rootNode.enumerateChildNodes { (node, stop )  -> Void in
             node.removeFromParentNode()
         }
@@ -219,7 +224,7 @@ import SceneKit
     }
     
     @IBAction func isRotate(_ sender: CheckBox) {
-        if (isAutoRotate.isChecked) {
+        if (!isAutoRotate.isChecked) {
             self.ligandNode.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 1, z: 0, duration: 1)))
         } else {
             self.ligandNode.removeAllActions()
@@ -227,6 +232,7 @@ import SceneKit
     }
     
     @IBAction func isLabel(_ sender: CheckBox) {
+        isAutoRotate.isChecked = false
         self.scene.rootNode.enumerateChildNodes { (node, stop )  -> Void in
             node.removeFromParentNode()
         }
