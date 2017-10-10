@@ -44,11 +44,22 @@ class Ligand {
                             self.parse(presultFile: resultFile)
                             pview.load()
                         }
+                    } else {
+                        DispatchQueue.main.async {
+                            let alertController = UIAlertController(title: "Error", message: "Can't load Ligand", preferredStyle: .alert)
+                            let defaultAction = UIAlertAction(title: "OK", style: .default) {
+                                action in pview.navigationController?.popViewController(animated: true)
+                            }
+                            alertController.addAction(defaultAction)
+                            pview.present(alertController, animated: true, completion: nil)
+                        }
                     }
                 } else {
                     DispatchQueue.main.async {
                         let alertController = UIAlertController(title: "Error", message: "Can't load Ligand", preferredStyle: .alert)
-                        let defaultAction = UIAlertAction(title: "GOTCHA", style: .default, handler: nil)
+                        let defaultAction = UIAlertAction(title: "OK", style: .default) {
+                            action in pview.navigationController?.popViewController(animated: true)
+                        }
                         alertController.addAction(defaultAction)
                         pview.present(alertController, animated: true, completion: nil)
                     }
@@ -56,13 +67,14 @@ class Ligand {
             } else {
                 DispatchQueue.main.async {
                     let alertController = UIAlertController(title: "Error", message: "Can't load Ligand", preferredStyle: .alert)
-                    let defaultAction = UIAlertAction(title: "GOTCHA", style: .default, handler: nil)
+                    let defaultAction = UIAlertAction(title: "OK", style: .default) {
+                        action in pview.navigationController?.popViewController(animated: true)
+                    }
                     alertController.addAction(defaultAction)
                     pview.present(alertController, animated: true, completion: nil)
                 }
             }
         }
-        UIApplication.shared.isNetworkActivityIndicatorVisible = false
         task.resume()
     }
 

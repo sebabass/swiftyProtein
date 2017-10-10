@@ -34,6 +34,7 @@ import SceneKit
     override func viewDidLoad() {
         super.viewDidLoad()
         self.initMenu()
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
         self.ligandTest = Ligand(pid: ligand)
         self.ligandTest.load(pview: self)
         self.scene = SCNScene()
@@ -42,6 +43,7 @@ import SceneKit
     
     override func viewDidDisappear(_ animated: Bool) {
         navigationController?.popViewController(animated: true)
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
     func testGesture(recognizer: UITapGestureRecognizer) {
@@ -145,6 +147,7 @@ import SceneKit
             self.sceneView.addGestureRecognizer(self.gestureReconizer)
             self.LigandId.title = self.ligandTest.id
         }
+        UIApplication.shared.isNetworkActivityIndicatorVisible = false
     }
     
     func drawAtoms() {
